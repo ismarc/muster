@@ -1,0 +1,24 @@
+* Conditionals
+Case statements and value decomposition with type and value matching is powerful.  However, it's not enough for typical branching.  To allow normal conditionals (such as if statements) comparison operators and Boolean types need to be added, complicating the scope of the syntax.
+** Boolean types
+Boolean types need to be included, even if they're not exposed.  This means that exposing them as capability types makes sense, even though there is an underlying concept of true and false.  To simplify syntax, reserved words and operations, true and false should only be exposed via the standard library, even though there are the underlying types.  This allows case statements and pattern matching without having to expose a bare type.
+** Conditional statements
+To preserve the design goals of the language, conditional statements make little sense.  Branching should be based on matching criteria instead.  Expansion of pattern matching can resolve this, but the syntax needs to be defined.  Essentially, the case statement needs to enable the branching or definitions need to dispatch to the right declaration based on pattern matching.
+
+** Case statements
+Case statements are essentially multiple dispatch declarations.  A syntax that allows multiple dispatch and signatures for definitions via a declaration would solve the need and complexity of case statements.
+
+** Overloaded definitions
+An overloaded definition would be one that has multiple declarations that take the same type and return the same type, but use decomposition or pattern matching to determine which body to call.  This is a powerful approach, but can lead to oddities in development.
+
+** If definition
+Another approach is to have a definition of if that will take a Boolean condition and any type.  If the condition evaluates to true, then the type's value is returned (evaluating declarations if necessary).  This could provide elegant inline conditionals.  However, there would need to be a way to specify the inputs.
+
+One approach is:
+if < (True, { myDef < myVal });
+
+This is a simple approach where the if definition pattern matches on the first parameter being true.  An alternative would be:
+
+if < (True, { myTrueDef < myVal }, { myFalseDef < myVal } );
+
+This provides an alternative block to run when the first parameter doesn't evaluate to true.
