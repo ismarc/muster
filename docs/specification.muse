@@ -1,0 +1,19 @@
+#title Language Specification
+
+* Muster Language Specification
+** Introduction
+Muster is an implicit parallel, declarative data processing language.  It is organized by connecting data sources
+(streams or collections) to a series of operations.  Operations are implicitly called in parallel until they need to
+be collected in order to pass to another operation.  The call semantics are different than other languages to allow
+for this parallelism and special note should be taken to cover that section.
+
+** Lexical elements
+*** Comments
+Comments are delimited by <verbatim>/* ... */</verbatim> and can span multiple lines.  Comments do not nest.
+*** Identifiers
+Identifieres are named program entities, such as definitions.  It is a sequence of one or more letters, digits and symbols.
+
+<src lang="ebnf">
+identifier           = identifier_component { identifier_component } .
+identifier_component = letter | unicode_digit | symbol .
+</src>
