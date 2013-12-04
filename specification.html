@@ -52,10 +52,202 @@ for this parallelism and special note should be taken to cover that section.</p>
 <p class="first">Identifieres are named program entities, such as definitions.  It is a sequence of one or more letters, digits and symbols.</p>
 
 <pre class="example">
-identifier           = identifier_component { identifier_component } .
-identifier_component = letter | unicode_digit | symbol .
+identifier           = identifier_start { identifier_component } .
+identifier_component = identifier_start | symbol .
+identifier_start     = letter | symbol .
 </pre>
 
+
+<h4>Keywords</h4>
+
+<p class="first">There are very few reserved keywords in Muster.  They are:</p>
+
+<ul>
+<li>define</li>
+<li>declare</li>
+<li>import</li>
+<li>serial</li>
+</ul>
+
+
+<h4>Operators and Delimiters</h4>
+
+<p class="first">The set of operators and delimiters are:</p>
+
+<pre class="example">
+( ) + &amp; &lt;&lt; &quot;
+[ ] - | &gt;&gt; '
+{ } * ^ ||
+&lt; &gt; / . &amp;&amp;
+: ; % , :=
+</pre>
+
+
+<h4>Integer literals</h4>
+
+<p class="first">An integer literal is a sequence of digits that represent an integer constant.</p>
+
+<pre class="example">
+decimal_digit = &quot;0&quot; ... &quot;9&quot; .
+octal_digit   = &quot;0&quot; ... &quot;7&quot; .
+hex_digit     = &quot;0&quot; ... &quot;9&quot; | &quot;A&quot; ... &quot;F&quot; | &quot;a&quot; ... &quot;f&quot; .
+
+int_lit       = decimal_lit | octal_lit | hex_lit .
+decimal_lit   = ( &quot;1&quot; ... &quot;9&quot; ) { decimal_digit } .
+octal_lit     = &quot;0&quot; { octal_digit } .
+hex_lit       = &quot;0&quot; &quot;x&quot; hex_digit { hex_digit } .
+</pre>
+
+
+<h4>Floating-point literals</h4>
+
+<p class="first">A floating point literal is a decimal representation of a floating point constant</p>
+
+<pre class="example">
+float_lit = decimals &quot;.&quot; [ decimals ] | &quot;.&quot; decimals .
+decimals  = decimal_digit { decimal_digit } .
+</pre>
+
+
+<h4>String literals</h4>
+
+<p class="first">A string literal represents a string constant obtained from concatenating a sequence of characters.</p>
+
+<pre class="example">
+string_lit = `&quot;` { unicode_char | newline } `&quot;`
+</pre>
+
+
+
+<h3>Blocks</h3>
+
+<p class="first">A block is a possibly empty sequence of declarations, definitions and statements within matching brace brackets.  Evaluation
+of the block is determined based on its use.</p>
+
+<pre class="example">
+Block         = &quot;{&quot; StatementList &quot;}&quot; .
+StatementList = { Statement &quot;;&quot; } .
+</pre>
+
+<h4>Declaration Blocks</h4>
+
+<p class="first">A declaration is a block that takes 0 or more values as input and evaluates to 0 or more values.  A declaration block is not
+evaluated when it is declared, only when used within an expression.</p>
+
+<pre class="example">
+Declaration   = &quot;declare&quot; Signature Block .
+Signature     = Parameters [ &quot;:&quot; Result ] .
+Parameters    = &quot;(&quot; [ ParameterList [ &quot;,&quot; ]] &quot;)&quot; .
+Result        = Parameters | Type .
+ParameterList = ParameterDecl { &quot;,&quot; ParameterDecl } .
+ParameterDecl = [ identifier &quot;:&quot; Type ] .
+Type          = identifier [ &quot;(&quot; identifier &quot;)&quot; ] .
+</pre>
+
+<pre class="example">
+declare (a: system.Stream, b: MyType): List(String) {
+  [a, b];
+};
+</pre>
+
+
+<h4>Serial Blocks</h4>
+
+<p class="first">A serial block indicates that every statement contained in the block should be executed serially, rather than in parallel.
+Normally, individual statements are executed in sequence, but each statement may be evaluated in parallel.  Serial blocks
+insure that this does not happen.</p>
+
+<pre class="example">
+Serial = &quot;serial&quot; Block .
+</pre>
+
+<pre class="example">
+serial {
+  system.out.println &lt; [&quot;Hello&quot;, &quot;World&quot;];
+};
+</pre>
+
+
+<h4>Definitions</h4>
+
+<p class="first">A definition is a label applied to a value.  If the value is a statement or block, it is not evaluated at the time the definition
+is created, it is only evaluated when it is used in a statement.</p>
+
+<pre class="example">
+Definition = &quot;define&quot; identifier &quot;:&quot; Type &quot;:=&quot; Value
+Value      = Case | Serial | Declaration | Constant | Statement .
+Type       = identifier [ &quot;(&quot; identifier &quot;)&quot; ] .
+</pre>
+
+<pre class="example">
+define x: system.Stream := declare (a: system.Stream): system.Stream {
+  a;
+};
+</pre>
+
+
+
+<h3>Types</h3>
+
+<p class="first">Type specifications in Muster are different than other systems.  Types are not explicitly created, every definition is an implicit
+type.  This mechanism also means that there are no &quot;built-in&quot; types, they are all wrapped by system definitions.  The only type
+that can be said to exist without a definition is Constant, which includes constant strings and numbers.  These are automatically
+coerced into the system provided type (system.String, system.Number, system.Integer, system.Float).  Declarations form a 'template'
+for the requirments of a type.</p>
+
+<p>Given the following:</p>
+
+<pre class="example">
+/* Define Foo as a declaration with bar and baz definitions */
+define Foo := declare () {
+  define bar: system.String := declare (): system.String { &quot;a&quot;; };
+  define baz: system.Number := 5;
+  define oh: Foo := declare (): Foo {
+    define b: system.String := &quot;e&quot;;
+    Foo;
+  };
+};
+
+/* Define Bar as a declaration with bar and baz definitions */
+define Bar := declare () {
+  define bar: system.String := &quot;b&quot;;
+  define baz: system.Number := 10;
+  define oh: Foo := declare (): Foo {
+    define a: system.String := &quot;e&quot;;
+    Foo;
+  };
+};
+
+/* Define Baz as a declaration with bar, baz and bam definitions */
+define Baz := declare () {
+  define bar: system.String := &quot;c&quot;;
+  define baz: system.Number := 5;
+  define bam: system.String := &quot;d&quot;;
+  define oh: Foo := declare (): Foo {
+    define d: system.String := &quot;e&quot;;
+    Foo;
+  };
+};
+
+/* Define call as a declaration that takes a type of Foo */
+define call := declare (a: Foo) {};
+
+/* Define bunk as a declaration that takes a type of Baz */
+define bunk := declare (a: Baz) {};
+
+/* All 3 are valid */
+call &lt; Foo;
+call &lt; Bar;
+call &lt; Baz;
+
+/* Both are invalid, they fail the type checks */
+bunk &lt; Foo;
+bunk &lt; Bar;
+</pre>
+
+<p>When a definition is used as a type, the type that is generated is the components of the definition.  Only the top-level
+definitions are considered for the type check.  As can be seen, the 'oh' definition in each one differs on what it contains,
+but would not result in a compile error.</p>
 
 
 
