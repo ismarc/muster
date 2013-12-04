@@ -1,0 +1,69 @@
+<html>
+  <head>
+    <title>
+      Language Specification
+    </title>
+    <meta name="generator" content="muse.el" />
+    <meta name="author" content="Matt Brace" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div id="container">
+      <div class="inner">
+        <header>
+          <h1>Muster</h1>
+          <h2>Implicitly parallel stream processing language</h2>
+        </header>
+<!--
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/ismarc/muster/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/ismarc/muster/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/ismarc/muster" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+-->
+      <section id="main_content">
+<h2>Muster Language Specification</h2>
+
+<h3>Introduction</h3>
+
+<p class="first">Muster is an implicit parallel, declarative data processing language.  It is organized by connecting data sources
+(streams or collections) to a series of operations.  Operations are implicitly called in parallel until they need to
+be collected in order to pass to another operation.  The call semantics are different than other languages to allow
+for this parallelism and special note should be taken to cover that section.</p>
+
+
+<h3>Lexical elements</h3>
+
+<h4>Comments</h4>
+
+<p class="first">Comments are delimited by /* ... */ and can span multiple lines.  Comments do not nest.</p>
+
+
+<h4>Identifiers</h4>
+
+<p class="first">Identifieres are named program entities, such as definitions.  It is a sequence of one or more letters, digits and symbols.</p>
+
+<pre class="example">
+identifier           = identifier_component { identifier_component } .
+identifier_component = letter | unicode_digit | symbol .
+</pre>
+
+
+
+
+        </section id="main_content">
+        <footer>
+          Muster is maintained by <a href="https://github.com/ismarc">ismarc</a><br>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>
